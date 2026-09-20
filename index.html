@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08101f">
+  <meta name="description" content="按物理学领域、年代与理论类型检索核心公式、创作者、应用与历史意义。">
+  <title>物理学谱系 · 理论与公式数据库</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2308101f'/%3E%3Ccircle cx='32' cy='32' r='6' fill='%2369e4ff'/%3E%3Cellipse cx='32' cy='32' rx='24' ry='10' fill='none' stroke='%23ffc857' stroke-width='3' transform='rotate(32 32 32)'/%3E%3Cellipse cx='32' cy='32' rx='24' ry='10' fill='none' stroke='%239b8cff' stroke-width='3' transform='rotate(-32 32 32)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#results">跳至检索结果</a>
+  <header class="topbar">
+    <div class="brand" aria-label="物理学谱系首页">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><b></b></span>
+      <span><strong>物理学谱系</strong><small>THE PHYSICS LINEAGE</small></span>
+    </div>
+    <div class="top-meta"><span id="live-count">120</span> 个核心条目 <span class="sep">/</span> 公元前 4 世纪—21 世纪</div>
+    <button class="about-btn" id="about-btn" type="button">收录说明</button>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">从定律到技术 · 从人物到时代</p>
+        <h1 id="page-title">物理学如何成为<br><em>今天的世界</em></h1>
+      </div>
+      <p class="lede">按领域追踪核心理论的诞生：它由谁提出、在什么时代形成，用一个公式抓住其物理内核，再看它如何进入工程、医学与日常生活。</p>
+    </section>
+
+    <section class="workspace" aria-label="物理学数据库检索">
+      <aside class="filters">
+        <div class="search-wrap">
+          <label for="search">检索条目</label>
+          <div class="search-box">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m16 16 5 5"></path></svg>
+            <input id="search" type="search" placeholder="理论、人物、公式或应用…" autocomplete="off">
+            <kbd>/</kbd>
+          </div>
+        </div>
+
+        <fieldset>
+          <legend>领域</legend>
+          <div class="field-list" id="field-filters"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>形成时代</legend>
+          <div class="era-grid" id="era-filters"></div>
+        </fieldset>
+
+        <fieldset>
+          <legend>二级主题</legend>
+          <select class="topic-select" id="topic-filter" aria-label="按二级主题筛选">
+            <option value="全部">全部主题</option>
+          </select>
+        </fieldset>
+
+        <div class="filter-actions">
+          <button id="reset-filters" type="button">重置筛选</button>
+          <span id="filter-status">显示全部条目</span>
+        </div>
+      </aside>
+
+      <div class="content">
+        <section class="overview" aria-label="数据库概览">
+          <div class="stat-card primary"><span>当前结果</span><strong id="result-count">120</strong><small>项公式与理论</small></div>
+          <div class="stat-card"><span>覆盖领域</span><strong id="field-count">12</strong><small>个物理学分支</small></div>
+          <div class="stat-card"><span>跨越时间</span><strong>24</strong><small>个世纪</small></div>
+          <div class="epoch-card">
+            <div class="epoch-head"><span>理论形成密度</span><small>按世纪</small></div>
+            <div class="epoch-bars" id="epoch-bars" aria-label="各世纪理论条目数量图"></div>
+          </div>
+        </section>
+
+        <section class="timeline-panel" aria-labelledby="timeline-title">
+          <div class="section-head">
+            <div><span class="index">01</span><h2 id="timeline-title">年代谱系</h2></div>
+            <div class="legend"><span><i class="dot classical"></i>经典体系</span><span><i class="dot modern"></i>现代物理</span></div>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </section>
+
+        <section class="results" id="results" aria-labelledby="results-title">
+          <div class="section-head results-head">
+            <div><span class="index">02</span><h2 id="results-title">理论档案</h2><span class="result-label" id="result-label">全部条目</span></div>
+            <label class="sort-control">排序
+              <select id="sort">
+                <option value="year-asc">年代从早到晚</option>
+                <option value="year-desc">年代从晚到早</option>
+                <option value="field">按领域</option>
+              </select>
+            </label>
+          </div>
+          <div class="cards" id="cards"></div>
+          <div class="empty" id="empty" hidden>
+            <strong>没有匹配的条目</strong>
+            <p>换一个关键词，或清除部分筛选条件。</p>
+            <button type="button" id="empty-reset">查看全部条目</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div><strong>物理学谱系</strong><p>一部可检索的理论、公式与应用简史。</p></div>
+    <p>年代取理论首次发表或获得成熟形式的代表年份；多人贡献的理论采用公认的关键节点。</p>
+  </footer>
+
+  <dialog class="detail-dialog" id="detail-dialog">
+    <button class="close-dialog" type="button" aria-label="关闭详情">×</button>
+    <div id="detail-content"></div>
+  </dialog>
+
+  <dialog class="about-dialog" id="about-dialog">
+    <button class="close-about" type="button" aria-label="关闭说明">×</button>
+    <p class="eyebrow">ABOUT THE ARCHIVE</p>
+    <h2>如何理解“创立年份”</h2>
+    <p>科学理论很少在某一天凭空诞生。本数据库选取首次明确提出、完成数学表述或得到关键实验证实的代表节点，并在详情中保留必要的多人贡献说明。</p>
+    <p>公式使用便于浏览的典型形式，并不替代完整定义、适用条件与严格推导。条目适合建立知识地图，深入研究时仍应查阅原始论文和专业教材。</p>
+    <div class="about-key"><span>年份</span><span>理论 / 公式</span><span>关键人物</span><span>应用与意义</span></div>
+  </dialog>
+
+  <script src="./data.js"></script>
+  <script src="./data-extended.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
