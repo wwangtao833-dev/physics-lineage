@@ -197,3 +197,6 @@ dialog::backdrop { background: rgba(2,7,15,.75); backdrop-filter: blur(5px); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* Review metadata and source navigation. */
+.record-status{font-size:11px;color:#b6c6da;line-height:1.6;margin:8px 0}.detail-block a,.coverage-panel a{color:#79dfff;overflow-wrap:anywhere}.related-btn{background:#17273f;color:#e4eeff;border:1px solid #49647d;border-radius:8px;padding:8px 12px;margin:4px;cursor:pointer}.coverage-panel{margin:20px 0;padding:18px;background:#0d192a;border:1px solid #263b55;border-radius:12px;color:#b6c6da;line-height:1.8}.coverage-panel summary{cursor:pointer;color:#e7efff;font-weight:600}.timeline{overflow-x:auto}.time-segment{min-width:115px}.detail-formula,.formula{overflow-wrap:anywhere}a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid #79dfff;outline-offset:3px}

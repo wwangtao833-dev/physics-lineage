@@ -1,5 +1,5 @@
 (() => {
-  const state = { query: "", field: "全部", era: "all", topic: "全部", sort: "year-asc" };
+  const state = { query: "", field: "全部", era: "all", topic: "全部", sort: "year-asc", source: "all" };
   const el = id => document.getElementById(id);
   const cards = el("cards");
   const dialog = el("detail-dialog");
@@ -38,7 +38,7 @@
   }
 
   function renderEpochBars() {
-    const buckets = ["古代", "16C", "17C", "18C", "19C", "1900s", "1910s", "1920s", "1930s", "1940s", "1950s", "1970+"].map(label => ({ label, count: 0 }));
+    const buckets = ["古代", "16C", "17C", "18C", "19C", "1900s", "1910s", "1920s", "1930s", "1940s", "1950–69", "1970+"].map(label => ({ label, count: 0 }));
     PHYSICS_DATA.forEach(item => {
       let i = item.year < 1500 ? 0 : item.year < 1600 ? 1 : item.year < 1700 ? 2 : item.year < 1800 ? 3 : item.year < 1900 ? 4 : item.year < 1910 ? 5 : item.year < 1920 ? 6 : item.year < 1930 ? 7 : item.year < 1940 ? 8 : item.year < 1950 ? 9 : item.year < 1970 ? 10 : 11;
       buckets[i].count += 1;
@@ -55,8 +55,8 @@
     const q = normalized(state.query);
     const era = ERAS.find(item => item.id === state.era);
     const result = PHYSICS_DATA.filter(item => {
-      const searchable = normalized([item.title, item.people, item.field, item.topic, item.formula, item.summary, item.application, item.significance, item.context, item.conditions, item.variables, item.date].join(" "));
-      return (!q || searchable.includes(q)) && (state.field === "全部" || item.field === state.field) && (state.topic === "全部" || item.topic === state.topic) && (!era || era.test(item.year));
+      const searchable = normalized([item.id, item.kind, item.title, item.people, item.field, item.topic, item.formula, item.summary, item.application, item.significance, item.context, item.conditions, item.variables, item.date].join(" "));
+      return (state.source === "all" || (state.source === "sourced" ? item.sources.length > 0 : item.sources.length === 0)) && (!q || searchable.includes(q)) && (state.field === "全部" || item.field === state.field) && (state.topic === "全部" || item.topic === state.topic) && (!era || era.test(item.year));
     });
     return result.sort((a, b) => state.sort === "year-desc" ? b.year - a.year : state.sort === "field" ? a.field.localeCompare(b.field, "zh-CN") || a.year - b.year : a.year - b.year);
   }
@@ -65,7 +65,7 @@
     return `<article class="theory-card" style="${fieldStyle(item.field)}">
       <div class="card-top"><span class="card-meta"><i></i>${escapeHtml(item.field)} · ${escapeHtml(item.topic)}</span><time class="card-year">${escapeHtml(item.date)}</time></div>
       <h3>${escapeHtml(item.title)}</h3>
-      <p class="people">${escapeHtml(item.people)}</p>
+      <p class="record-status">${escapeHtml(item.kind)} · ${escapeHtml(item.editorial)}</p><p class="people">${escapeHtml(item.people)}</p>
       <div class="formula">${escapeHtml(item.formula)}</div>
       <p class="summary">${escapeHtml(item.summary)}</p>
       <div class="card-bottom"><span class="application">应用 · ${escapeHtml(item.application)}</span><button class="detail-btn" type="button" data-id="${item.id}" aria-label="查看${escapeHtml(item.title)}详情">展开档案 →</button></div>
@@ -80,7 +80,7 @@
     el("live-count").textContent = PHYSICS_DATA.length;
     el("field-count").textContent = new Set(result.map(item => item.field)).size;
     el("result-label").textContent = result.length === PHYSICS_DATA.length ? "全部条目" : `${result.length} 个匹配结果`;
-    const active = [state.field !== "全部" ? state.field : "", state.topic !== "全部" ? state.topic : "", state.era !== "all" ? ERAS.find(e => e.id === state.era)?.label : "", state.query ? `“${state.query}”` : ""].filter(Boolean);
+    const active = [state.source === "sourced" ? "附参考来源" : state.source === "legacy" ? "待补来源" : "",state.field !== "全部" ? state.field : "", state.topic !== "全部" ? state.topic : "", state.era !== "all" ? ERAS.find(e => e.id === state.era)?.label : "", state.query ? `“${state.query}”` : ""].filter(Boolean);
     el("filter-status").textContent = active.length ? active.join(" · ") : "显示全部条目";
   }
 
@@ -88,7 +88,7 @@
     el("detail-content").innerHTML = `<article style="${fieldStyle(item.field)}">
       <header class="detail-hero">
         <div class="detail-kicker">${escapeHtml(item.field)} · ${escapeHtml(item.topic)} · ${escapeHtml(item.date)}</div>
-        <h2>${escapeHtml(item.title)}</h2>
+        <h2 id="detail-title">${escapeHtml(item.title)}</h2><p class="record-status">${escapeHtml(item.kind)} · ${escapeHtml(item.editorial)}</p>
         <p class="detail-people">关键人物：${escapeHtml(item.people)}</p>
         <div class="detail-formula">${escapeHtml(item.formula)}</div>
       </header>
@@ -99,13 +99,15 @@
         <section class="detail-block"><h3>关键变量</h3><p>${escapeHtml(item.variables)}</p></section>
         <section class="detail-block"><h3>主要应用</h3><p>${escapeHtml(item.application)}</p></section>
         <section class="detail-block"><h3>历史意义</h3><p>${escapeHtml(item.significance)}</p></section>
+        <section class="detail-block full"><h3>参考来源</h3>${item.sources.length ? '<ul>'+item.sources.map(source => `<li><a href="${escapeHtml(source.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.title)} ↗</a></li>`).join('')+'</ul>' : '<p>旧版条目尚未补入逐项来源。局部修正不代表全部历史与细节已完成复核。</p>'}</section>
+        <section class="detail-block full"><h3>关联条目</h3>${item.related.length ? item.related.map(id => `<button type="button" class="related-btn" data-id="${escapeHtml(id)}">${escapeHtml(PHYSICS_DATA.find(row => row.id === id).title)}</button>`).join('') : '<p>后续继续补充知识关联。</p>'}</section>
       </div>
     </article>`;
-    dialog.showModal();
+    if (!dialog.open) dialog.showModal();
   }
 
   function reset() {
-    state.query = ""; state.field = "全部"; state.era = "all"; state.topic = "全部"; state.sort = "year-asc";
+    state.query = ""; state.field = "全部"; state.era = "all"; state.topic = "全部"; state.sort = "year-asc"; state.source = "all"; el("source-filter").value = "all";
     el("search").value = ""; el("sort").value = "year-asc";
     document.querySelectorAll("[data-field]").forEach(btn => btn.classList.toggle("active", btn.dataset.field === "全部"));
     document.querySelectorAll("[data-era]").forEach(btn => btn.classList.toggle("active", btn.dataset.era === "all"));
@@ -131,6 +133,7 @@
   });
 
   el("search").addEventListener("input", event => { state.query = event.target.value.trim(); render(); });
+  el("source-filter").addEventListener("change", event => { state.source = event.target.value; render(); });
   el("sort").addEventListener("change", event => { state.sort = event.target.value; render(); });
   el("topic-filter").addEventListener("change", event => { state.topic = event.target.value; render(); });
   el("reset-filters").addEventListener("click", reset);
@@ -158,7 +161,7 @@
       execute: (input = {}) => {
         const { query = "", field = "全部", topic = "全部", era = "all" } = input;
         if (typeof query !== "string" || query.length > 100 || !validFields.includes(field) || !validTopics.includes(topic) || !validEras.includes(era)) throw new TypeError("无效的检索条件");
-        state.query = query; state.field = field; state.topic = topic; state.era = era;
+        state.source = "all"; el("source-filter").value = "all"; state.query = query; state.field = field; state.topic = topic; state.era = era;
         el("search").value = query;
         document.querySelectorAll("[data-field]").forEach(btn => btn.classList.toggle("active", btn.dataset.field === field));
         document.querySelectorAll("[data-era]").forEach(btn => btn.classList.toggle("active", btn.dataset.era === era));

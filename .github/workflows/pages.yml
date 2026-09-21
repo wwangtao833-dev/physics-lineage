@@ -23,6 +23,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Validate database
+        run: node scripts/validate.mjs
+      - name: Prepare site
+        run: |
+          mkdir -p _site
+          cp index.html styles.css app.js data.js data-extended.js data-reviewed.js data-modern.js _site/
+          touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
@@ -30,7 +37,7 @@ jobs:
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "_site"
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
