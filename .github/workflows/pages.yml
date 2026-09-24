@@ -28,7 +28,7 @@ jobs:
       - name: Prepare site
         run: |
           mkdir -p _site
-          cp index.html styles.css app.js data.js data-extended.js data-reviewed.js data-modern.js _site/
+          cp index.html styles.css app.js data.js data-extended.js data-reviewed.js data-modern.js data-expansion.js _site/
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5
